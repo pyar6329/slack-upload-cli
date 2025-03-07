@@ -33,6 +33,10 @@ impl From<Argument> for Command {
 
 impl Command {
     pub async fn run(&self, config: &Config) -> Result<(), Error> {
+        if self.is_do_nothing() {
+            return Ok(());
+        }
+
         let client_builder = ClientBuilder::from(config);
         let slack_channel_id = client_builder.get_channel_id();
         let client = client_builder.build()?;
