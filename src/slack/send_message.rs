@@ -5,48 +5,34 @@ use serde_json::Value as JsonValue;
 use tracing::{debug, error};
 use url::Url;
 
-use super::UploadInfo;
-use crate::os::FileInfo;
-
-const API_URL: &str = "https://slack.com/api/files.completeUploadExternal";
+const API_URL: &str = "https://slack.com/api/chat.postMessage";
 
 #[derive(Debug, Clone, Eq, PartialEq, Deserialize)]
-pub struct CompletedUploadInfo {
-    #[serde(rename = "files")]
-    pub files: Vec<UploadedFileInfo>,
-}
-
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize)]
-pub struct UploadedFileInfo {
-    #[serde(rename = "id")]
-    pub id: String,
-    #[serde(rename = "title")]
-    pub title: String,
+pub struct SentMessage {
+    #[serde(rename = "channel")]
+    pub channel_id: String,
+    #[serde(rename = "ts")]
+    pub timestamp: String,
 }
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize)]
 struct RequestBody {
-    #[serde(rename = "channel_id")]
+    #[serde(rename = "channel")]
     pub channel_id: String,
-    #[serde(rename = "files")]
-    pub files: Vec<UploadedFileInfo>,
+    #[serde(rename = "text")]
+    pub message: String,
 }
 
-// ref: https://api.slack.com/methods/files.completeUploadExternal
-pub async fn complete_upload(
+// ref: https://api.slack.com/methods/chat.postMessage
+pub async fn send_message(
     client: &Client,
     slack_channel_id: &str,
-    file_info: &FileInfo,
-    upload_info: &UploadInfo,
-) -> Result<CompletedUploadInfo, Error> {
+    message: &str,
+) -> Result<SentMessage, Error> {
     let url = Url::parse(API_URL)?;
-    let uploaded_file = UploadedFileInfo {
-        id: upload_info.id.to_owned(),
-        title: file_info.file_name.to_owned(),
-    };
     let request_body = RequestBody {
         channel_id: slack_channel_id.to_string(),
-        files: vec![uploaded_file],
+        message: message.to_string(),
     };
 
     let response = client
@@ -54,18 +40,18 @@ pub async fn complete_upload(
         .json(&request_body)
         .send()
         .await
-        .inspect_err(|e| error!("failed complete_upload sending error: {:?}", e))?;
+        .inspect_err(|e| error!("failed send_message sending error: {:?}", e))?;
 
-    debug!("complete_upload http version: {:?}", response.version());
+    debug!("send_message http version: {:?}", response.version());
 
     let bytes = response.bytes().await?;
-    let maybe_succeed_data: Result<CompletedUploadInfo, _> = serde_json::from_slice(&bytes);
+    let maybe_succeed_data: Result<SentMessage, _> = serde_json::from_slice(&bytes);
     let maybe_error: Result<ErrorInfo, _> = serde_json::from_slice(&bytes);
 
     match (maybe_succeed_data, maybe_error) {
         (Ok(data), _) => {
             let json_value: JsonValue = serde_json::from_slice(&bytes).unwrap_or_default();
-            debug!("complete upload body: {:?}", &json_value);
+            debug!("send_message body: {:?}", &json_value);
             Ok(data)
         }
         (_, Ok(error)) => {

@@ -17,7 +17,7 @@ pub async fn upload_file_to_slack(
     info!("uploaded file: {:?}", &upload_result);
 
     let complete_upload =
-        complete_upload(&client, &file_info, &upload_info, &slack_channel_id).await?;
+        complete_upload(&client, &slack_channel_id, &file_info, &upload_info).await?;
     info!("uploaded file: {:?}", &complete_upload);
 
     Ok(())
