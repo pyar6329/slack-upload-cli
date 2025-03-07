@@ -26,4 +26,8 @@ impl Config {
 
         Ok(envs)
     }
+
+    pub fn is_debug_build(&self) -> bool {
+        cfg!(debug_assertions)
+    }
 }

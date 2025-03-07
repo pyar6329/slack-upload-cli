@@ -29,6 +29,11 @@ run: ## run: cargo run
 	@make build
 	@cargo run --quiet -j $(CPU_CORES)
 
+.PHONY:	run_release
+run_release: ## run: cargo build --release and run binary
+	@make release
+	@./target/x86_64-unknown-linux-musl/release/slack_upload_cli
+
 .PHONY:	test
 test: ## run: only unit test
 	@cargo test --lib
