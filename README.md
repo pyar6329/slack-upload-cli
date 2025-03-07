@@ -19,7 +19,7 @@ Please move suc command to PATH directory.
 # Usage
 
 ```bash
-Usage: slack_upload_cli [OPTIONS]
+Usage: suc [OPTIONS]
 
 Options:
   -u, --upload <FILE_PATH>   upload file to slack. Please set path of a file.
