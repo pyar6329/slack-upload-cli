@@ -6,6 +6,16 @@ See: [files.upload retires in March 2025, replaced by sequenced Web API methods]
 
 However, those new APIs are complex and not easy to use with curl. So, I made this small CLI tool to upload files to Slack.
 
+# Download
+
+```bash
+$ curl -sL -o suc https://github.com/pyar6329/slack-upload-cli/releases/download/1.0.0/suc-$(uname -s)-$(uname -m)
+$ chmod +x suc
+$ ./suc --help
+```
+
+Please move suc command to PATH directory.
+
 # Usage
 
 ```bash
@@ -32,7 +42,7 @@ export SLACK_CHANNEL_ID="C12345678"
 run the command
 
 ```bash
-slack_upload_cli -u /path/to/file
+$ suc -u /path/to/file
 ```
 
 ## Send a message
@@ -40,5 +50,5 @@ slack_upload_cli -u /path/to/file
 run the command
 
 ```bash
-slack_upload_cli -s "Hello, World!"
+$ suc -s "Hello, World!"
 ```
