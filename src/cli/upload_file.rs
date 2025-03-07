@@ -10,14 +10,14 @@ pub async fn upload_file_to_slack(
 ) -> Result<(), Error> {
     let file_info = FileInfo::new(file_path)?;
 
-    let upload_info = get_upload_url(&client, &file_info).await?;
+    let upload_info = get_upload_url(client, &file_info).await?;
     info!("get Upload URL: {:?}", &upload_info);
 
-    let upload_result = upload_file(&client, &upload_info.url, &file_info).await?;
-    info!("uploaded file: {:?}", &upload_result);
+    upload_file(client, &upload_info.url, &file_info).await?;
+    info!("uploaded file: {:?}", &());
 
     let complete_upload =
-        complete_upload(&client, &slack_channel_id, &file_info, &upload_info).await?;
+        complete_upload(client, slack_channel_id, &file_info, &upload_info).await?;
     info!("uploaded file: {:?}", &complete_upload);
 
     Ok(())

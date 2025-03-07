@@ -1,6 +1,6 @@
 [package]
-name = "slack_upload_cli"
-version = "0.1.0"
+name = "suc"
+version = "1.0.0"
 authors = ["Tsukasa Arima <pyar6329@gmail.com>"]
 edition = "2024"
 
