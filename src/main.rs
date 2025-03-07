@@ -1,7 +1,8 @@
 use anyhow::{Error, Result};
+use slack_upload_cli::cli::run_cli;
 
 #[tokio::main]
 async fn main() -> Result<(), Error> {
-    println!("Hello, world!");
+    run_cli().await?;
     Ok(())
 }
