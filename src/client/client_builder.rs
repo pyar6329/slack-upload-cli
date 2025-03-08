@@ -1,8 +1,9 @@
-pub use reqwest::Client;
-
 use crate::env::Config;
 use anyhow::{Error, Result};
-use reqwest::header::{AUTHORIZATION, CONTENT_TYPE, HeaderMap};
+use reqwest::{
+    Client,
+    header::{AUTHORIZATION, CONTENT_TYPE, HeaderMap},
+};
 use std::collections::HashMap;
 use tokio::time::Duration;
 

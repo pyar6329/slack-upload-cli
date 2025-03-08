@@ -1,6 +1,6 @@
 mod get;
 
-use super::{ClientError, Header, UrlQuery, format_url};
+use super::{ClientError, Header, RetryPolicy, UrlQuery, format_url};
 use crate::traits::Parallelism;
 use anyhow::Result;
 use reqwest::Client as ReqwestClient;
@@ -26,7 +26,7 @@ pub trait GetClient {
     ) -> Result<(Response, Header), ClientError<ResponseErr>>
     where
         Response: DeserializeOwned,
-        ResponseErr: DeserializeOwned + Debug;
+        ResponseErr: DeserializeOwned + Debug + RetryPolicy;
 }
 
 #[trait_variant::make(Send)]
@@ -40,7 +40,7 @@ pub trait PostJsonClient {
     where
         Request: Serialize,
         Response: DeserializeOwned,
-        ResponseErr: DeserializeOwned + Debug;
+        ResponseErr: DeserializeOwned + Debug + RetryPolicy;
 }
 
 #[trait_variant::make(Send)]
@@ -54,5 +54,5 @@ pub trait PostMultipartClient {
     where
         Request: Serialize,
         Response: DeserializeOwned,
-        ResponseErr: DeserializeOwned + Debug;
+        ResponseErr: DeserializeOwned + Debug + RetryPolicy;
 }

@@ -12,7 +12,7 @@ where
     ) -> Result<(Response, Header), ClientError<ResponseErr>>
     where
         Response: DeserializeOwned,
-        ResponseErr: DeserializeOwned + Debug,
+        ResponseErr: DeserializeOwned + Debug + RetryPolicy,
     {
         let url = format_url(&self.base_url, path, url_query);
 

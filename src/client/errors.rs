@@ -6,8 +6,6 @@ use strum::EnumIs;
 use thiserror::Error as ThisError;
 use tracing::{error, warn};
 
-type RetriedNum = u8;
-
 #[derive(Debug, Clone, PartialEq, Eq, EnumIs, ThisError)]
 pub enum ClientError<T> {
     #[error("reqwest serde_json parse error: {0}")]
@@ -20,6 +18,13 @@ pub enum ClientError<T> {
         "reqwest send was succeed, however response returns error: {0:?}, status_code: {1}, header: {2:?}"
     )]
     ResponseError(T, StatusCode, Header),
+    #[error(
+        "reqwest was retried many times, however response returns error, so retrying was cancelled: {0:?}, status_code: {1}, header: {2:?}"
+    )]
+    ReachedRetryNum(T, StatusCode, Header),
+
+    #[error("reqwest was send tokio::spawn, however it was failed to receive from parallel task")]
+    CannotReceiveFromParallel,
 }
 
 impl<T: Debug> ClientError<T> {
@@ -43,6 +48,18 @@ impl<T: Debug> ClientError<T> {
 
     pub fn response_error(error: T, status_code: &StatusCode, header: &Header) -> Self {
         let err = Self::ResponseError(error, *status_code, header.to_owned());
+        error!("{}", err);
+        err
+    }
+
+    pub fn reached_retry_num(error: T, status_code: &StatusCode, header: &Header) -> Self {
+        let err = Self::ResponseError(error, *status_code, header.to_owned());
+        error!("{}", err);
+        err
+    }
+
+    pub fn cannot_receive_from_parallel() -> Self {
+        let err = Self::CannotReceiveFromParallel;
         error!("{}", err);
         err
     }
