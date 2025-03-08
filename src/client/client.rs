@@ -6,6 +6,7 @@ use anyhow::Result;
 use reqwest::Client as ReqwestClient;
 use serde::{de::DeserializeOwned, ser::Serialize};
 use std::fmt::Debug;
+use tokio::time::Duration;
 use tracing::debug;
 use url::Url;
 
@@ -18,11 +19,12 @@ pub struct Client<T> {
 
 #[trait_variant::make(Send)]
 pub trait GetClient {
-    async fn get<Response, ResponseErr>(
+    async fn get_once<Response, ResponseErr>(
         &self,
         path: &str,
         header: &Header,
         url_query: &UrlQuery,
+        timeout: &Option<u8>,
     ) -> Result<(Response, Header), ClientError<ResponseErr>>
     where
         Response: DeserializeOwned,

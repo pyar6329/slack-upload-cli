@@ -11,7 +11,7 @@ where
         header: &Header,
         url_query: &UrlQuery,
         retry_num: &u8,
-        // timeout_per_once: &Option<u8>,
+        timeout_per_once: &Option<u8>,
     ) -> Result<(Response, Header), ClientError<ResponseErr>>
     where
         Response: DeserializeOwned + Parallelism,
@@ -20,7 +20,7 @@ where
         let mut maybe_last_err = None;
         for i in 0..*retry_num {
             let response = self
-                .get::<Response, ResponseErr>(path, header, url_query)
+                .get_once::<Response, ResponseErr>(path, header, url_query, timeout_per_once)
                 .await;
 
             match response {

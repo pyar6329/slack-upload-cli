@@ -16,7 +16,7 @@ pub trait GetWithRetryClient {
         header: &Header,
         url_query: &UrlQuery,
         retry_num: &u8,
-        // timeout: &Option<u8>,
+        timeout_per_once: &Option<u8>,
     ) -> Result<(Response, Header), ClientError<ResponseErr>>
     where
         Response: DeserializeOwned + Parallelism,

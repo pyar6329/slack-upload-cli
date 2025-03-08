@@ -4,11 +4,12 @@ impl<T> GetClient for Client<T>
 where
     T: Clone + Parallelism,
 {
-    async fn get<Response, ResponseErr>(
+    async fn get_once<Response, ResponseErr>(
         &self,
         path: &str,
         header: &Header,
         url_query: &UrlQuery,
+        timeout_secs: &Option<u8>,
     ) -> Result<(Response, Header), ClientError<ResponseErr>>
     where
         Response: DeserializeOwned,
@@ -21,6 +22,11 @@ where
         // It set header to client if header is not empty
         if *header != Header::default() {
             client = client.headers(header.to_owned().into());
+        }
+
+        // It set timeout to client if timeout is not empty
+        if let Some(timeout) = timeout_secs {
+            client = client.timeout(Duration::from_secs(*timeout as u64));
         }
 
         let response = client.send().await.map_err(ClientError::send_error)?;
