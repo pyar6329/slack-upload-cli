@@ -2,6 +2,7 @@ use super::{ClientError, Header, UrlQuery, format_url};
 use anyhow::{Error, Result};
 use reqwest::{Client as ReqwestClient, StatusCode};
 use serde::de::DeserializeOwned;
+use std::fmt::Debug;
 use tracing::debug;
 use url::Url;
 
@@ -18,10 +19,10 @@ impl<T: Clone> Client<T> {
         path: &str,
         header: &Header,
         url_query: &UrlQuery,
-    ) -> Result<(Response, Header), ClientError>
+    ) -> Result<(Response, Header), ClientError<ResponseErr>>
     where
         Response: DeserializeOwned,
-        ResponseErr: DeserializeOwned,
+        ResponseErr: DeserializeOwned + Debug,
     {
         let url = format_url(&self.base_url, path, url_query);
 
@@ -41,16 +42,28 @@ impl<T: Clone> Client<T> {
             .await
             .map_err(ClientError::parse_bytes_error)?;
 
-        let maybe_response: Result<Response, ClientError> =
+        let maybe_response: Result<Response, ClientError<ResponseErr>> =
             serde_json::from_slice(&response_body_bytes).map_err(ClientError::parse_json_error);
 
-        let maybe_response_err: Result<ResponseErr, ClientError> =
+        let maybe_response_err: Result<ResponseErr, ClientError<ResponseErr>> =
             serde_json::from_slice(&response_body_bytes).map_err(ClientError::parse_json_error);
 
-        //       match (status, maybe_response, maybe_response_err) {
-        //           (_, Ok(response), _) => Ok((response, response_header)),
-        //           (_, Err(_), Ok(response_err)) => Err(ClientError::from(response_err)),
-        //       }
-        todo!()
+        match (status_code, maybe_response, maybe_response_err) {
+            (_, Ok(response), _) => Ok((response, response_header)),
+            (_, Err(_), Ok(response_err)) => Err(ClientError::response_error(
+                response_err,
+                &status_code,
+                &response_header,
+            )),
+            (status, Err(e), Err(_))
+                if status.is_success() || status.is_redirection() | status.is_informational() =>
+            {
+                Err(e)
+            }
+            (status, Err(_), Err(e)) if status.is_client_error() || status.is_server_error() => {
+                Err(e)
+            }
+            (_, Err(_), Err(e)) => Err(e),
+        }
     }
 }
