@@ -22,9 +22,10 @@ pub enum ClientError<T> {
         "reqwest was retried many times, however response returns error, so retrying was cancelled: {0:?}, status_code: {1}, header: {2:?}"
     )]
     ReachedRetryNum(T, StatusCode, Header),
-
     #[error("reqwest was send tokio::spawn, however it was failed to receive from parallel task")]
     CannotReceiveFromParallel,
+    #[error("reqwest returns unknown error occurred")]
+    Unknown,
 }
 
 impl<T: Debug> ClientError<T> {
@@ -60,6 +61,12 @@ impl<T: Debug> ClientError<T> {
 
     pub fn cannot_receive_from_parallel() -> Self {
         let err = Self::CannotReceiveFromParallel;
+        error!("{}", err);
+        err
+    }
+
+    pub fn unknown() -> Self {
+        let err = Self::Unknown;
         error!("{}", err);
         err
     }
