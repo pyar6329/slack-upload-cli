@@ -4,7 +4,7 @@ use super::{ClientError, Header, UrlQuery, format_url};
 use crate::traits::Parallelism;
 use anyhow::Result;
 use reqwest::Client as ReqwestClient;
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, ser::Serialize};
 use std::fmt::Debug;
 use tracing::debug;
 use url::Url;
@@ -17,7 +17,7 @@ pub struct Client<T> {
 }
 
 #[trait_variant::make(Send)]
-trait GetClient {
+pub trait GetClient {
     async fn get<Response, ResponseErr>(
         &self,
         path: &str,
@@ -25,6 +25,34 @@ trait GetClient {
         url_query: &UrlQuery,
     ) -> Result<(Response, Header), ClientError<ResponseErr>>
     where
+        Response: DeserializeOwned,
+        ResponseErr: DeserializeOwned + Debug;
+}
+
+#[trait_variant::make(Send)]
+pub trait PostJsonClient {
+    async fn post_json<Request, Response, ResponseErr>(
+        &self,
+        path: &str,
+        header: &Header,
+        request_body: &Request,
+    ) -> Result<(Response, Header), ClientError<ResponseErr>>
+    where
+        Request: Serialize,
+        Response: DeserializeOwned,
+        ResponseErr: DeserializeOwned + Debug;
+}
+
+#[trait_variant::make(Send)]
+pub trait PostMultipartClient {
+    async fn post_multipart<Request, Response, ResponseErr>(
+        &self,
+        path: &str,
+        header: &Header,
+        request_body: &Request,
+    ) -> Result<(Response, Header), ClientError<ResponseErr>>
+    where
+        Request: Serialize,
         Response: DeserializeOwned,
         ResponseErr: DeserializeOwned + Debug;
 }
