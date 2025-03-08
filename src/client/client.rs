@@ -12,9 +12,18 @@ use url::Url;
 
 #[derive(Clone)]
 pub struct Client<T> {
-    pub client: ReqwestClient,
-    pub base_url: Url,
-    pub other_common_config: T,
+    client: ReqwestClient,
+    base_url: Url,
+    common_config: T,
+}
+
+impl<T> Client<T>
+where
+    T: Clone,
+{
+    pub fn common_config(&self) -> T {
+        self.common_config.to_owned()
+    }
 }
 
 #[trait_variant::make(Send)]
