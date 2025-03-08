@@ -2,7 +2,7 @@ mod get;
 
 use super::{ClientError, Header, RetryPolicy, UrlQuery, format_url};
 use crate::traits::Parallelism;
-use anyhow::Result;
+use anyhow::{Error, Result};
 use reqwest::Client as ReqwestClient;
 use serde::{de::DeserializeOwned, ser::Serialize};
 use std::fmt::Debug;
@@ -12,22 +12,17 @@ use url::Url;
 
 #[derive(Clone)]
 pub struct Client<T> {
-    client: ReqwestClient,
-    base_url: Url,
-    common_config: T,
+    pub(super) client: ReqwestClient,
+    pub(super) base_url: Url,
+    pub common_config: T,
 }
 
-impl<T> Client<T>
-where
-    T: Clone,
-{
-    pub fn common_config(&self) -> T {
-        self.common_config.to_owned()
-    }
+pub trait ClientBuilder<T> {
+    fn build(base_url: &Url, base_header: &Header, common_config: &T) -> Result<Client<T>, Error>;
 }
 
 #[trait_variant::make(Send)]
-pub trait GetClient {
+pub(super) trait GetClient {
     async fn get_once<Response, ResponseErr>(
         &self,
         path: &str,
@@ -41,7 +36,7 @@ pub trait GetClient {
 }
 
 #[trait_variant::make(Send)]
-pub trait PostJsonClient {
+pub(super) trait PostJsonClient {
     async fn post_json<Request, Response, ResponseErr>(
         &self,
         path: &str,
@@ -55,7 +50,7 @@ pub trait PostJsonClient {
 }
 
 #[trait_variant::make(Send)]
-pub trait PostMultipartClient {
+pub(super) trait PostMultipartClient {
     async fn post_multipart<Request, Response, ResponseErr>(
         &self,
         path: &str,

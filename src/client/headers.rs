@@ -1,4 +1,4 @@
-use reqwest::header::HeaderMap;
+use reqwest::header::{AUTHORIZATION, CONTENT_TYPE, HeaderMap};
 use std::collections::HashMap;
 use std::ops::Deref;
 
@@ -27,6 +27,22 @@ impl Header {
         let mut header_inner: HeaderInner = self.deref().to_owned();
         header_inner.insert(key.to_string(), value.to_string());
         Self::from(header_inner)
+    }
+
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn set_content_type_json(&self) -> Self {
+        self.set_key_value(CONTENT_TYPE.as_str(), "application/json; charset=utf-8")
+    }
+
+    pub fn set_authorization_bearer(&self, token: &str) -> Self {
+        self.set_key_value(AUTHORIZATION.as_str(), &format!("Bearer {}", token))
+    }
+
+    pub fn set_authorization_basic(&self, token: &str) -> Self {
+        self.set_key_value(AUTHORIZATION.as_str(), &format!("Basic {}", token))
     }
 }
 

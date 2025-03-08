@@ -8,6 +8,8 @@ use tracing::{error, warn};
 
 #[derive(Debug, Clone, PartialEq, Eq, EnumIs, ThisError)]
 pub enum ClientError<T> {
+    #[error("reqwest client building is failed: {0}")]
+    BuildFailed(String),
     #[error("reqwest serde_json parse error: {0}")]
     ParseJsonError(String),
     #[error("reqwest .bytes() error: {0}")]
@@ -28,7 +30,16 @@ pub enum ClientError<T> {
     Unknown,
 }
 
-impl<T: Debug> ClientError<T> {
+impl<T> ClientError<T>
+where
+    T: Debug,
+{
+    pub fn build_failed(error: ReqwestError) -> Self {
+        let err = Self::BuildFailed(error.to_string());
+        error!("{}", err);
+        err
+    }
+
     pub fn parse_json_error(error: JsonError) -> Self {
         let err = Self::ParseJsonError(error.to_string());
         error!("{}", err);
