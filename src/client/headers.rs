@@ -5,7 +5,7 @@ use std::ops::Deref;
 type HeaderKV = (String, String);
 type HeaderInner = HashMap<String, String>;
 
-#[derive(Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Header(HeaderInner);
 
 impl Header {
@@ -27,6 +27,12 @@ impl Header {
         let mut header_inner: HeaderInner = self.deref().to_owned();
         header_inner.insert(key.to_string(), value.to_string());
         Self::from(header_inner)
+    }
+}
+
+impl Default for Header {
+    fn default() -> Self {
+        Self(HeaderInner::default())
     }
 }
 

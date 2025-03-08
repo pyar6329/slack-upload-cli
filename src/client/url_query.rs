@@ -6,8 +6,14 @@ use url::{Url, form_urlencoded::Serializer as UrlEncoder};
 type UrlQueryKV = (String, String);
 type UrlQueryInner = HashMap<String, String>;
 
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq)]
 pub struct UrlQuery(UrlQueryInner);
+
+impl Default for UrlQuery {
+    fn default() -> Self {
+        Self(UrlQueryInner::default())
+    }
+}
 
 impl UrlQuery {
     pub fn get_key(&self, key: &str) -> Option<String> {
