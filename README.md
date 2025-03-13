@@ -9,7 +9,7 @@ However, those new APIs are complex and not easy to use with curl. So, I made th
 # Download
 
 ```bash
-$ curl -sL -o suc https://github.com/pyar6329/slack-upload-cli/releases/download/1.0.0/suc-$(uname -s)-$(uname -m)
+$ curl -sL -o suc https://github.com/pyar6329/slack-upload-cli/releases/download/1.0.1/suc-$(uname -s)-$(uname -m)
 $ chmod +x suc
 $ ./suc --help
 ```
