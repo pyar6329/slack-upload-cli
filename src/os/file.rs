@@ -18,10 +18,12 @@ impl FileInfo {
             .unwrap_or_default();
         let file_size = file_path.metadata()?.len();
 
+        let replaced_file_size = if file_size == 0 { 1 } else { file_size };
+
         let file_info = FileInfo {
             file_path,
             file_name,
-            file_size,
+            file_size: replaced_file_size,
         };
 
         Ok(file_info)

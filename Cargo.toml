@@ -1,6 +1,6 @@
 [package]
 name = "suc"
-version = "1.0.0"
+version = "1.0.1"
 authors = ["Tsukasa Arima <pyar6329@gmail.com>"]
 edition = "2024"
 
